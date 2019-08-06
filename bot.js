@@ -6,22 +6,15 @@ const client = new Discord.Client();
 const updateDate = 11;
 
 // store thee last uri
-let last = [];
+let last = "";
 
 client.on('ready', ( ) => {
 	console.log ( `Logged in as ${client.user.tag}!` );
 	console.log ( `Serving ${client.guilds.size} servers` );
 
-	for ( let i = 0; i < config.channels.length; i++ )
-	{
-		let list = Array.from(client.channels.findAll("name", config.channels[ i ] ));
-		for ( let j = 0; j < list.length; j++ )
-		{
-			setTimeout ( ( channel, uD, index ) => {
-				waitNext( channel, uD, index );
-			}, millisTo ( 14, 51 ), list[j], updateDate, j );
-		}
-	}
+	setTimeout ( ( uD ) => {
+		sendAndWaitNext ( uD );
+	}, millisTo ( 15, 06 ), updateDate );
 });
 
 client.on('message', ( msg ) => {
@@ -121,36 +114,42 @@ function getPicture ( calback, date = null )
 	// <img class="alignnone wp-image-884 size-full jetpack-lazy-image" src="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=960%2C540" alt width="960" height="540" data-recalc-dims="1" data-lazy-srcset="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?w=1920 1920w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=300%2C169 300w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=768%2C432 768w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1024%2C576 1024w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1140%2C641 1140w" data-lazy-sizes="(max-width: 960px) 100vw, 960px" data-lazy-src="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=960%2C540&amp;is-pending-load=1" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><noscript><img class="alignnone wp-image-884 size-full" src="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=960%2C540" alt="" width="960" height="540" srcset="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?w=1920 1920w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=300%2C169 300w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=768%2C432 768w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1024%2C576 1024w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1140%2C641 1140w" sizes="(max-width: 960px) 100vw, 960px" data-recalc-dims="1" />
 }
 
-function waitNext ( channel, uD = 0, index = 0 )
+function sendAndWaitNext ( uD = 0 )
 {
-	if ( !channel )
-	{
-		return false;
-	}
-
 	let date = new Date();
 
 	// test the day of the week
 	if ( ( date.getDay () == 0 ) ||
 		( date.getDay () == 6 ) )
 	{ //  if sunday or saturday wait next day
-		setTimeout ( () => { waitNext( channel, uD ) }, millisTo ( uD ) ) ;
+		setTimeout ( () => { sendAndWaitNext( uD ) }, millisTo ( uD ) ) ;
 		return;
 	}
-
 
 	let uri = getPicture ( );
 
 	// test if new picture available
-	if ( uri == last[index] )
+	if ( uri == last )
 	{ // if the last picture displayed is se same to the new one retest in 1 hour
-		setTimeout ( () => { waitNext( channel, uD ) }, 3600 ) ;
+		setTimeout ( () => { sendAndWaitNext( uD ) }, 3600 ) ;
 		return;
 	}
 
-	last = uri;
-	channel.send ( uri );
 
-	setTimeout ( () => { waitNext( channel, uD ) }, millisTo ( uD ) ) ;
+	for ( let i = 0; i < config.channels.length; i++ )
+	{
+		let list = Array.from(client.channels.findAll("name", config.channels[ i ] ));
+		
+		for ( let j = 0; j < list.length; j++ )
+		{
+			list[j].send ( uri );
+		}
+	}
+
+
+	last = uri;
+	// channel.send ( uri );
+
+	setTimeout ( () => { sendAndWaitNext( uD ) }, millisTo ( uD ) ) ;
 }
 
