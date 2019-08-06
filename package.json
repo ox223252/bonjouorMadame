@@ -1,0 +1,21 @@
+{
+  "name": "bonjour-madame",
+  "version": "1.0.0",
+  "description": "each day show a beautifull woman picture",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sexy",
+    "nude",
+    "bonjour-madame",
+    "woman"
+  ],
+  "author": "ox223252",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "request": "^2.88.0"
+  }
+}
