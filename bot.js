@@ -1,16 +1,18 @@
 const Discord = require('discord.js');
 const request = require('request')
-const auth = require( './auth.json' );
+const config = require( './config.json' );
 const client = new Discord.Client();
 
 client.on('ready', ( ) => {
 	console.log ( `Logged in as ${client.user.tag}!` );
 	console.log ( `Serving ${client.guilds.size} servers` );
 
-
-	setTimeout ( () => {
-		waitNex( client.channels.find("name","bonjour-madame") );
-	}, millisTo ( 11 ) );
+	for ( let i = 0; i < config.channels.length; i++ )
+	{
+		setTimeout ( ( id ) => {
+			waitNex( client.channels.find("name",id) );
+		}, millisTo ( 11 ), config.channels[ i ] );
+	}
 });
 
 client.on('message', ( msg ) => {
@@ -51,7 +53,7 @@ client.on("guildCreate", guild => {
 	client.user.setActivity(`Serving ${client.guilds.size} servers`);
 });
 
-client.login( auth.token );
+client.login( config.token );
 
 function millisTo( hours = 0, minuts = 0, seconds = 0 )
 {
@@ -108,3 +110,4 @@ function waitNex ( channel )
 
 	setTimeout ( () => { waitNex( channel ) }, millisTo ( 11 ) ) ;
 }
+
