@@ -12,7 +12,7 @@ To host your own instance you should add a config file name config.json
 ```json
 {
 	"token":"...",
-	channels:[
+	"channels":[
 		"channel_name",
 		"channel_name",
 		"channel_name"
