@@ -27,6 +27,27 @@ client.on('message', ( msg ) => {
 
 	let reponceAvailable = false;
 
+	if ( value.indexOf('help') >= 0 )
+	{
+		msg.reply( "\nbonjour-madame bot to show nice nude and sexy women pictures\n"+
+			"`!bM cmd` : comment\n"+
+			"`!bM help` : this display\n"+
+			"`!bM about` : show some informations about this program\n"+
+			"`!bM last` : last picture available on the web site\n"+
+			"`!bM random` : random picture between the first and the last\n"+
+			"`!bM` = `!bM random`\n"+
+			"`!bM yyyy-mm-dd` : picture for this date" );
+		return;
+	}
+
+	if ( value.indexOf('about') >= 0 )
+	{
+		msg.reply( "\nmade by ox223252\n"+
+			"license : GPLv2\n"+
+			"github : https://github.com/ox223252/bonjouorMadame\n" );
+		return;
+	}
+
 	if ( value.indexOf('last') >= 0 )
 	{ // request the last img
 		msg.reply( getPicture ( ) );
@@ -53,7 +74,7 @@ client.on('message', ( msg ) => {
 		msg.reply( getPicture ( null, null, page ) );
 		reponceAvailable = true;
 	}
-	
+
 	let date = new Date( value );
 	if ( date != "Invalid Date" )
 	{ // request specific day's img
