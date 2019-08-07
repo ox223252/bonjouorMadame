@@ -26,6 +26,11 @@ Sommes cmds are availables :
 
 cmd|comment
 ---|---
-!bM | %display last picture
-!bM YYYY MM DD | display picture of the selected day --if available--.
-
+!bM help | this display
+!bM about | show some informations about this program
+!bM last | last picture available on the web site
+!bM | random picture between the first and the last
+!bM random | random picture between the first and the last
+!bM all | display all pictures
+!bM stop | stop display all pictures
+!bM yyyy-mm-dd | display picture of the selected day --if available--"

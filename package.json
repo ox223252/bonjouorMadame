@@ -1,6 +1,6 @@
 {
   "name": "bonjour-madame",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "each day show a beautifull woman picture",
   "main": "bot.js",
   "scripts": {
