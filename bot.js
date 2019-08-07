@@ -4,6 +4,7 @@ const config = require( './config.json' );
 const client = new Discord.Client();
 
 const updateDate = 11;
+const first = '2018-12-10';
 
 // store thee last uri
 let last = "";
@@ -18,41 +19,60 @@ client.on('ready', ( ) => {
 });
 
 client.on('message', ( msg ) => {
-	switch ( msg.content )
+	if ( msg.content.indexOf ( '!bM' ) != 0 )
 	{
-		case '!bM' :
-		{
-			msg.reply( getPicture ( ) );
-			break;
-		}
-		default:
-		{
-			if ( msg.content.indexOf ( '!bM' ) != 0 )
-			{
-				return false;
-			}
-			var value = msg.content.substring ( 3 );
-			
-			var date = new Date( value );
-			if ( date != "Invalid Date" )
-			{
-				let uri = getPicture ( null, date );
+		return false;
+	}
+	let value = msg.content.substring ( 3 );
 
-				if ( !uri )
-				{
-					msg.reply( "picture not found" );
-				}
-				else
-				{
-					msg.reply( uri );
-				}
-			}
-			else
-			{
-				msg.reply( "can't undertand request");
-			}
-			break;
+	let reponceAvailable = false;
+
+	if ( value.indexOf('last') >= 0 )
+	{ // request the last img
+		msg.reply( getPicture ( ) );
+		reponceAvailable = true;
+	}
+	
+	if ( value.indexOf('first') >= 0 )
+	{ // request the first img
+		msg.reply( getPicture ( null, new Date ( first ) ) );
+		reponceAvailable = true;
+	}
+	
+	if ( ( value.length == '' ) ||
+		( value.indexOf('random') >= 0 ) )
+	{ // request random img
+		let oldest = new Date( first );
+		let now = new Date( );
+
+		let oneDay = 24*60*60*1000;
+		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) );
+
+		let page = Math.floor ( Math.random ( ) * days + 1 );
+
+		msg.reply( getPicture ( null, null, page ) );
+		reponceAvailable = true;
+	}
+	
+	let date = new Date( value );
+	if ( date != "Invalid Date" )
+	{ // request specific day's img
+		let uri = getPicture ( null, date );
+
+		if ( !uri )
+		{
+			msg.reply( "picture not found" );
 		}
+		else
+		{
+			msg.reply( uri );
+		}
+		reponceAvailable = true;
+	}
+	
+	if ( !reponceAvailable )
+	{
+		msg.reply( "can't undertand request");
 	}
 });
 
@@ -75,13 +95,17 @@ function millisTo( hours = 0, minuts = 0, seconds = 0 )
 	return ( millis );
 }
 
-function getPicture ( calback, date = null )
+function getPicture ( calback, date = null, page = null )
 {
 	let target = '';
 
 	if ( ( date != null ) )
 	{
 		target = '/'+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate();
+	}
+	else if ( page != null )
+	{
+		target = '/page/'+page+'/';
 	}
 
 	let data = request('GET', 'http://www.bonjourmadame.fr'+target);
