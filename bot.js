@@ -15,7 +15,7 @@ client.on('ready', ( ) => {
 
 	setTimeout ( ( uD ) => {
 		sendAndWaitNext ( uD );
-	}, millisTo ( 15, 06 ), updateDate );
+	}, millisTo ( 11 ), updateDate );
 });
 
 client.on('message', ( msg ) => {
@@ -65,13 +65,27 @@ client.on('message', ( msg ) => {
 	{ // request random img
 		let oldest = new Date( first );
 		let now = new Date( );
+		
+		//https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2018/12/tumblr_p6eakhdEXQ1v1wvcuo1_1280.png
 
 		let oneDay = 24*60*60*1000;
 		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) );
+		
+		let uri = "";
+		do
+		{
+			let page = Math.floor ( Math.random ( ) * days );
+			uri = getPicture ( null, null, page );
+			if ( !uri )
+			{
+				console.log( page )
+			}
+		}
+		while ( !uri ||
+			( uri.indexOf ( "tumblr_p6eaohD9AM1v1wvcuo1_1280.png" ) >= 0 ) || 
+			( uri.indexOf ( "tumblr_p6eakhdEXQ1v1wvcuo1_1280.png" ) >= 0 ) );
 
-		let page = Math.floor ( Math.random ( ) * days + 1 );
-
-		msg.reply( getPicture ( null, null, page ) );
+		msg.reply( uri );
 		reponceAvailable = true;
 	}
 
@@ -132,7 +146,7 @@ function getPicture ( calback, date = null, page = null )
 	let data = request('GET', 'http://www.bonjourmadame.fr'+target);
 	if  ( !data )
 	{
-		return ( false );
+		return ( null );
 	}
 	data = data.body.toString('utf-8');
 
@@ -140,7 +154,7 @@ function getPicture ( calback, date = null, page = null )
 	let result = reg.exec ( data );
 	if ( !result )
 	{
-		return false;
+		return null;
 	}
 
 	uri = result[ 0 ].substring( result[ 0 ].indexOf( 'src="' ) + 5 );
@@ -149,14 +163,28 @@ function getPicture ( calback, date = null, page = null )
 	if ( calback )
 	{
 		calback ( uri );
-		return  ( true );
+		return  null;
 	}
 	else
 	{
-		return (uri );
+		return ( uri );
 	}
 
 	// <img class="alignnone wp-image-884 size-full jetpack-lazy-image" src="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=960%2C540" alt width="960" height="540" data-recalc-dims="1" data-lazy-srcset="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?w=1920 1920w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=300%2C169 300w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=768%2C432 768w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1024%2C576 1024w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1140%2C641 1140w" data-lazy-sizes="(max-width: 960px) 100vw, 960px" data-lazy-src="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=960%2C540&amp;is-pending-load=1" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><noscript><img class="alignnone wp-image-884 size-full" src="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=960%2C540" alt="" width="960" height="540" srcset="https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?w=1920 1920w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=300%2C169 300w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=768%2C432 768w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1024%2C576 1024w, https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2019/08/190806-1.jpg?resize=1140%2C641 1140w" sizes="(max-width: 960px) 100vw, 960px" data-recalc-dims="1" />
+}
+
+function isWeekDay ( date )
+{
+	console.log( "is week ? "+date.getDay () );
+	if ( ( date.getDay () == 0 ) ||
+		( date.getDay () == 6 ) )
+	{ //  if sunday or saturday wait next day
+		
+		return ( false );
+	}
+
+	console.log( 'yes : '+date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate() );
+	return ( true );
 }
 
 function sendAndWaitNext ( uD = 0 )
@@ -164,9 +192,9 @@ function sendAndWaitNext ( uD = 0 )
 	let date = new Date();
 
 	// test the day of the week
-	if ( ( date.getDay () == 0 ) ||
-		( date.getDay () == 6 ) )
+	if ( !isWeekDay ( date ) )
 	{ //  if sunday or saturday wait next day
+		
 		setTimeout ( () => { sendAndWaitNext( uD ) }, millisTo ( uD ) ) ;
 		return;
 	}
@@ -176,6 +204,7 @@ function sendAndWaitNext ( uD = 0 )
 	// test if new picture available
 	if ( uri == last )
 	{ // if the last picture displayed is se same to the new one retest in 1 hour
+		
 		setTimeout ( () => { sendAndWaitNext( uD ) }, 3600 ) ;
 		return;
 	}
