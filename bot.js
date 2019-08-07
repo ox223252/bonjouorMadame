@@ -8,6 +8,7 @@ const first = '2018-12-10';
 
 // store thee last uri
 let last = "";
+let allWorking = false;
 
 client.on('ready', ( ) => {
 	console.log ( `Logged in as ${client.user.tag}!` );
@@ -36,6 +37,8 @@ client.on('message', ( msg ) => {
 			"`!bM last` : last picture available on the web site\n"+
 			"`!bM random` : random picture between the first and the last\n"+
 			"`!bM` = `!bM random`\n"+
+			"`!bM all : to display all pictures`\n"+
+			"`!bM stop : to stop display all pictures`\n"+
 			"`!bM yyyy-mm-dd` : picture for this date" );
 		return;
 	}
@@ -46,6 +49,53 @@ client.on('message', ( msg ) => {
 			"license : GPLv2\n"+
 			"github : https://github.com/ox223252/bonjouorMadame\n" );
 		return;
+	}
+
+	if ( value.indexOf('all') >= 0 )
+	{
+		msg.reply( "wait few seconds i'm shearching" );
+
+		let oldest = new Date( first );
+		let now = new Date( );
+		
+		let oneDay = 24*60*60*1000;
+		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) );
+
+		function msgRpRec( page ) {
+			if ( !allWorking ||
+				( page < 0 ) )
+			{
+				return;
+			}
+
+			let uri = getPicture ( null, null, page );
+
+			if ( !isGoodUri ( uri ) )
+			{ // uri is invalide so just wait next
+				msgRpRec ( page - 1 );
+			}
+			else
+			{ // get correct uri 
+				msg.reply( uri )
+					.then ( () => {
+						setTimeout ( () => {
+							msgRpRec ( page - 1 );
+						}, 1000, page );
+					});
+			}
+		}
+
+		allWorking = true;
+		msgRpRec ( days );
+
+
+		reponceAvailable = true;
+	}
+
+	if ( value.indexOf('stop') >= 0 )
+	{
+		allWorking = false;
+		reponceAvailable = true;
 	}
 
 	if ( value.indexOf('last') >= 0 )
@@ -65,8 +115,6 @@ client.on('message', ( msg ) => {
 	{ // request random img
 		let oldest = new Date( first );
 		let now = new Date( );
-		
-		//https://i1.wp.com/bonjourmadame.fr/wp-content/uploads/2018/12/tumblr_p6eakhdEXQ1v1wvcuo1_1280.png
 
 		let oneDay = 24*60*60*1000;
 		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) );
@@ -81,13 +129,12 @@ client.on('message', ( msg ) => {
 				console.log( page )
 			}
 		}
-		while ( !uri ||
-			( uri.indexOf ( "tumblr_p6eaohD9AM1v1wvcuo1_1280.png" ) >= 0 ) || 
-			( uri.indexOf ( "tumblr_p6eakhdEXQ1v1wvcuo1_1280.png" ) >= 0 ) );
+		while ( !isGoodUri( uri ) );
 
 		msg.reply( uri );
 		reponceAvailable = true;
 	}
+
 
 	let date = new Date( value );
 	if ( date != "Invalid Date" )
@@ -117,6 +164,18 @@ client.on("guildCreate", guild => {
 });
 
 client.login( config.token );
+
+function isGoodUri ( uri )
+{
+	if ( !uri ||
+		( uri.indexOf ( "tumblr_p6eaohD9AM1v1wvcuo1_1280" ) >= 0 ) || 
+		( uri.indexOf ( "tumblr_p6eakhdEXQ1v1wvcuo1_1280" ) >= 0 ) || 
+		( uri.indexOf ( "noclub") >= 0 ) )
+	{
+		return ( false );
+	}
+	return ( true );
+}
 
 function millisTo( hours = 0, minuts = 0, seconds = 0 )
 {
