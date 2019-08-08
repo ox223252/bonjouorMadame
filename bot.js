@@ -38,6 +38,7 @@ client.on('message', ( msg ) => {
 			"`!bM random` : random picture between the first and the last\n"+
 			"`!bM` = `!bM random`\n"+
 			"`!bM all : to display all pictures`\n"+
+			"`!bM all from yyy-mm-dd : to display all pictures from defined date`\n"+
 			"`!bM stop : to stop display all pictures`\n"+
 			"`!bM yyyy-mm-dd` : picture for this date" );
 		return;
@@ -53,17 +54,32 @@ client.on('message', ( msg ) => {
 
 	if ( value.indexOf('all') >= 0 )
 	{
-		msg.reply( "wait few seconds i'm shearching" );
+		// msg.reply( "wait few seconds i'm shearching" );
 
-		let oldest = new Date( first );
+
+		let oldest = "";
+		if ( value.indexOf ( 'from' ) >= 0 )
+		{
+			oldest = new Date( value.substring ( value.indexOf ( 'from' ) + 4 ) );
+			if ( oldest == "Invalid Date" )
+			{ // request specific day's img
+				oldest = new Date( first );
+			}
+		}
+		else
+		{
+			oldest = new Date( first );
+		}
+
 		let now = new Date( );
+		now.setHours ( 00, 00, 00 );
 		
 		let oneDay = 24*60*60*1000;
-		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) );
+		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) ) + 1;
 
 		function msgRpRec( page ) {
 			if ( !allWorking ||
-				( page < 0 ) )
+				( page < 1 ) )
 			{
 				return;
 			}
@@ -75,7 +91,7 @@ client.on('message', ( msg ) => {
 				msgRpRec ( page - 1 );
 			}
 			else
-			{ // get correct uri 
+			{ // get correct uri
 				msg.reply( uri )
 					.then ( () => {
 						setTimeout ( () => {
@@ -90,6 +106,7 @@ client.on('message', ( msg ) => {
 
 
 		reponceAvailable = true;
+		return;
 	}
 
 	if ( value.indexOf('stop') >= 0 )
@@ -285,4 +302,3 @@ function sendAndWaitNext ( uD = 0 )
 
 	setTimeout ( () => { sendAndWaitNext( uD ) }, millisTo ( uD ) ) ;
 }
-
