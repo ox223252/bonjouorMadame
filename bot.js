@@ -73,7 +73,7 @@ client.on('message', ( msg ) => {
 
 		let now = new Date( );
 		now.setHours ( 00, 00, 00 );
-		
+
 		let oneDay = 24*60*60*1000;
 		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) ) + 1;
 
@@ -120,13 +120,13 @@ client.on('message', ( msg ) => {
 		msg.reply( getPicture ( ) );
 		reponceAvailable = true;
 	}
-	
+
 	if ( value.indexOf('first') >= 0 )
 	{ // request the first img
 		msg.reply( getPicture ( null, new Date ( first ) ) );
 		reponceAvailable = true;
 	}
-	
+
 	if ( ( value.length == '' ) ||
 		( value.indexOf('random') >= 0 ) )
 	{ // request random img
@@ -135,7 +135,7 @@ client.on('message', ( msg ) => {
 
 		let oneDay = 24*60*60*1000;
 		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) );
-		
+
 		let uri = "";
 		do
 		{
@@ -168,7 +168,7 @@ client.on('message', ( msg ) => {
 		}
 		reponceAvailable = true;
 	}
-	
+
 	if ( !reponceAvailable )
 	{
 		msg.reply( "can't undertand request");
@@ -185,8 +185,8 @@ client.login( config.token );
 function isGoodUri ( uri )
 {
 	if ( !uri ||
-		( uri.indexOf ( "tumblr_p6eaohD9AM1v1wvcuo1_1280" ) >= 0 ) || 
-		( uri.indexOf ( "tumblr_p6eakhdEXQ1v1wvcuo1_1280" ) >= 0 ) || 
+		( uri.indexOf ( "tumblr_p6eaohD9AM1v1wvcuo1_1280" ) >= 0 ) ||
+		( uri.indexOf ( "tumblr_p6eakhdEXQ1v1wvcuo1_1280" ) >= 0 ) ||
 		( uri.indexOf ( "noclub") >= 0 ) )
 	{
 		return ( false );
@@ -255,7 +255,7 @@ function isWeekDay ( date )
 	if ( ( date.getDay () == 0 ) ||
 		( date.getDay () == 6 ) )
 	{ //  if sunday or saturday wait next day
-		
+
 		return ( false );
 	}
 
@@ -270,7 +270,7 @@ function sendAndWaitNext ( uD = 0 )
 	// test the day of the week
 	if ( !isWeekDay ( date ) )
 	{ //  if sunday or saturday wait next day
-		
+
 		setTimeout ( () => { sendAndWaitNext( uD ) }, millisTo ( uD ) ) ;
 		return;
 	}
@@ -278,9 +278,10 @@ function sendAndWaitNext ( uD = 0 )
 	let uri = getPicture ( );
 
 	// test if new picture available
-	if ( uri == last )
+	if ( ( uri == last ) ||
+		!isGoodUri( uri ) )
 	{ // if the last picture displayed is se same to the new one retest in 1 hour
-		
+
 		setTimeout ( () => { sendAndWaitNext( uD ) }, 3600 ) ;
 		return;
 	}
@@ -289,7 +290,7 @@ function sendAndWaitNext ( uD = 0 )
 	for ( let i = 0; i < config.channels.length; i++ )
 	{
 		let list = Array.from(client.channels.findAll("name", config.channels[ i ] ));
-		
+
 		for ( let j = 0; j < list.length; j++ )
 		{
 			list[j].send ( uri );
