@@ -10,6 +10,11 @@ const first = '2018-12-10';
 let last = "";
 let allWorking = false;
 
+process.on('uncaughtException', function (err) {
+ 	console.error(err);
+	console.log("Node NOT Exiting...");
+});
+
 client.on('ready', ( ) => {
 	console.log ( `Logged in as ${client.user.tag}!` );
 	console.log ( `Serving ${client.guilds.size} servers` );
@@ -187,6 +192,7 @@ function isGoodUri ( uri )
 	if ( !uri ||
 		( uri.indexOf ( "tumblr_p6eaohD9AM1v1wvcuo1_1280" ) >= 0 ) ||
 		( uri.indexOf ( "tumblr_p6eakhdEXQ1v1wvcuo1_1280" ) >= 0 ) ||
+		( uri.indexOf ( "cropped-tumblr_o6wzsiZO9m1" ) >= 0 ) ||
 		( uri.indexOf ( "noclub") >= 0 ) )
 	{
 		return ( false );
@@ -219,21 +225,33 @@ function getPicture ( calback, date = null, page = null )
 		target = '/page/'+page+'/';
 	}
 
+	console.log ( target );
 	let data = request('GET', 'http://www.bonjourmadame.fr'+target);
 	if  ( !data )
 	{
 		return ( null );
 	}
+
 	data = data.body.toString('utf-8');
 
-	let reg = new RegExp ( /<img[^>]+alt=""[^>]+>/ );
-	let result = reg.exec ( data );
-	if ( !result )
+	do
 	{
-		return null;
-	}
+		let reg = new RegExp ( /<img[^>]+>/ );
+		let result = reg.exec ( data );
 
-	uri = result[ 0 ].substring( result[ 0 ].indexOf( 'src="' ) + 5 );
+		if ( !result )
+		{
+			return null;
+		}
+
+		uri = result[ 0 ].substring( result[ 0 ].indexOf( 'src="' ) + 5 );
+		if ( isGoodUri( uri ) )
+		{
+			break;
+		}
+		data = data.substring ( data.indexOf ( uri ) + uri.length );
+	}
+	while ( 1 );
 	uri = uri.substring( 0, uri.indexOf( '"' ) );
 	uri = uri.substring( 0, uri.indexOf( '?' ) );
 	if ( calback )
@@ -255,7 +273,6 @@ function isWeekDay ( date )
 	if ( ( date.getDay () == 0 ) ||
 		( date.getDay () == 6 ) )
 	{ //  if sunday or saturday wait next day
-
 		return ( false );
 	}
 
@@ -270,19 +287,22 @@ function sendAndWaitNext ( uD = 0 )
 	// test the day of the week
 	if ( !isWeekDay ( date ) )
 	{ //  if sunday or saturday wait next day
-
+		console.log( "it's week-end" );
+		console.log( " - "+millisTo ( uD ) );
 		setTimeout ( () => { sendAndWaitNext( uD ) }, millisTo ( uD ) ) ;
 		return;
 	}
 
 	let uri = getPicture ( );
 
+	console.log( "it's not week-end" );
+
 	// test if new picture available
 	if ( ( uri == last ) ||
 		!isGoodUri( uri ) )
 	{ // if the last picture displayed is se same to the new one retest in 1 hour
-
-		setTimeout ( () => { sendAndWaitNext( uD ) }, 3600 ) ;
+		console.log( " - invalid url" );
+		setTimeout ( () => { console.log( uD ); sendAndWaitNext( uD ) }, 3600 ) ;
 		return;
 	}
 
@@ -300,6 +320,8 @@ function sendAndWaitNext ( uD = 0 )
 
 	last = uri;
 	// channel.send ( uri );
+
+	console.log( "wait new" );
 
 	setTimeout ( () => { sendAndWaitNext( uD ) }, millisTo ( uD ) ) ;
 }
