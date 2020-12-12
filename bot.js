@@ -232,7 +232,8 @@ function getPicture ( calback, date = null, page = null )
 		return ( null );
 	}
 
-	data = data.body.toString('utf-8');
+	data = data.body.toString('utf-8')
+	data = data.substring ( data.indexOf ( 'id="page-content"' ) );
 
 	do
 	{
