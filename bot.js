@@ -194,6 +194,7 @@ function isGoodUri ( uri )
 		( uri.indexOf ( "tumblr_p6eakhdEXQ1v1wvcuo1_1280" ) >= 0 ) ||
 		( uri.indexOf ( "cropped-tumblr_o6wzsiZO9m1" ) >= 0 ) ||
 		( uri.indexOf ( "01_BM_2020_OK.jpg" ) >= 0 ) ||
+		( uri.indexOf ( "L7281H.jpg" ) >= 0 ) ||
 		( uri.indexOf ( "noclub") >= 0 ) )
 	{
 		return ( false );
