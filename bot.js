@@ -59,8 +59,7 @@ client.on('message', ( msg ) => {
 
 	if ( value.indexOf('all') >= 0 )
 	{
-		// msg.reply( "wait few seconds i'm shearching" );
-
+		msg.reply( "wait few seconds i'm shearching" );
 
 		let oldest = "";
 		if ( value.indexOf ( 'from' ) >= 0 )
@@ -79,36 +78,32 @@ client.on('message', ( msg ) => {
 		let now = new Date( );
 		now.setHours ( 00, 00, 00 );
 
-		let oneDay = 24*60*60*1000;
-		let days = Math.round ( Math.abs ( ( oldest.getTime ( ) - now.getTime ( ) ) / oneDay ) ) + 1;
-
-		function msgRpRec( page ) {
+		function msgRpRec( date ) {
 			if ( !allWorking ||
-				( page < 1 ) )
+				( date >= now ) )
 			{
 				return;
 			}
 
-			let uri = getPicture ( null, null, page );
+			let uri = getPicture ( null, date, null );
 
 			if ( !isGoodUri ( uri ) )
 			{ // uri is invalide so just wait next
-				msgRpRec ( page - 1 );
+				msgRpRec ( new Date ( date.setDate ( date.getDate() + 1 ) ) );
 			}
 			else
 			{ // get correct uri
 				msg.reply( uri )
 					.then ( () => {
 						setTimeout ( () => {
-							msgRpRec ( page - 1 );
-						}, 1000, page );
+							msgRpRec ( new Date ( date.setDate ( date.getDate() + 1 ) ) );
+						}, 1000, date );
 					});
 			}
 		}
 
 		allWorking = true;
-		msgRpRec ( days );
-
+		msgRpRec( oldest );
 
 		reponceAvailable = true;
 		return;
@@ -132,7 +127,7 @@ client.on('message', ( msg ) => {
 		reponceAvailable = true;
 	}
 
-	if ( ( value.length == '' ) ||
+	if ( ( value.length == 0 ) ||
 		( value.indexOf('random') >= 0 ) )
 	{ // request random img
 		let oldest = new Date( first );
@@ -227,7 +222,6 @@ function getPicture ( calback, date = null, page = null )
 		target = '/page/'+page+'/';
 	}
 
-	console.log ( target );
 	let data = request('GET', 'http://www.bonjourmadame.fr'+target);
 	if  ( !data )
 	{
